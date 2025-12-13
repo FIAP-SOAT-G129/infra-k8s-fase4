@@ -56,7 +56,7 @@ module "eks" {
       capacity_type  = "SPOT"
 
       labels = {
-        app = "orders-api-app"
+        app = "fastfood-orders-ms"
       }
 
       security_groups = var.security_group_ids
@@ -70,7 +70,7 @@ module "eks" {
       capacity_type  = "SPOT"
 
       labels = {
-        app = "payments-api-app"
+        app = "fastfood-payments-ms"
       }
 
       security_groups = var.security_group_ids
@@ -84,7 +84,7 @@ module "eks" {
       capacity_type  = "SPOT"
 
       labels = {
-        app = "catalog-api-app"
+        app = "fastfood-catalog-ms"
       }
 
       security_groups = var.security_group_ids

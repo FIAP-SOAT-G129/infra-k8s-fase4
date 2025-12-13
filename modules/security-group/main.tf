@@ -4,30 +4,30 @@ resource "aws_security_group" "eks_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port = 8080
-    to_port   = 8080
-    protocol  = "tcp"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port = 8081
-    to_port   = 8081
-    protocol  = "tcp"
+    from_port   = 8081
+    to_port     = 8081
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    from_port = 8082
-    to_port   = 8082
-    protocol  = "tcp"
+    from_port   = 8082
+    to_port     = 8082
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -47,16 +47,16 @@ resource "aws_security_group" "ingress_nlb_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port = 80
-    to_port   = 80
-    protocol  = "TCP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = merge(

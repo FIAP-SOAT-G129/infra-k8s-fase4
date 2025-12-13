@@ -8,20 +8,20 @@ module "eks" {
 
   access_entries = {
     terraform_admin = {
-      principal_arn = "arn:aws:iam::009093122732:user/github-user"
+      principal_arn   = "arn:aws:iam::009093122732:user/github-user"
       access_policies = [
         "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
       ]
     }
   }
 
-  create_kms_key = false
+  create_kms_key            = false
   cluster_encryption_config = []
 
   cluster_addons = {
-    coredns = { most_recent = true }
+    coredns    = { most_recent = true }
     kube-proxy = { most_recent = true }
-    vpc-cni = { most_recent = true }
+    vpc-cni    = { most_recent = true }
   }
 
   vpc_id     = var.vpc_id
@@ -44,7 +44,7 @@ module "eks" {
       desired_size    = var.desired_size
       instance_types  = var.instance_types
       capacity_type   = "SPOT"
-      labels = {
+      labels          = {
         app = "ingress-nodegroup"
         # Essa label permite que o balancer.tf consiga atribuir o ingress como target no target groups da AWS
       }
@@ -57,7 +57,7 @@ module "eks" {
       desired_size   = var.desired_size
       instance_types = var.instance_types
       capacity_type  = "SPOT"
-      labels = {
+      labels         = {
         app = "orders-api-app"
       }
       security_groups = var.security_group_ids
@@ -69,7 +69,7 @@ module "eks" {
       desired_size   = var.desired_size
       instance_types = var.instance_types
       capacity_type  = "SPOT"
-      labels = {
+      labels         = {
         app = "payments-api-app"
       }
       security_groups = var.security_group_ids
@@ -81,7 +81,7 @@ module "eks" {
       desired_size   = var.desired_size
       instance_types = var.instance_types
       capacity_type  = "SPOT"
-      labels = {
+      labels         = {
         app = "catalog-api-app"
       }
       security_groups = var.security_group_ids

@@ -9,7 +9,7 @@ variable "vpc_id" {
 }
 
 variable "subnet_ids" {
-  type = list(string)
+  type        = list(string)
   description = "List of private subnet IDs for the EKS worker nodes"
 }
 
@@ -20,9 +20,9 @@ variable "ami_type" {
 }
 
 variable "instance_types" {
-  type = list(string)
+  type        = list(string)
   description = "List of EC2 instance types for the EKS managed node group"
-  default = ["t3.small"]
+  default     = ["t3.small"]
 }
 
 variable "desired_size" {
@@ -44,11 +44,11 @@ variable "max_size" {
 }
 
 variable "tags" {
-  type = map(string)
+  type    = map(string)
   default = {}
 }
 
 variable "security_group_ids" {
-  type = list(string)
+  type        = list(string)
   description = "List of security group IDs to associate with the RDS instance"
 }

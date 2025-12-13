@@ -1,3 +1,7 @@
+provider "aws" {
+  region = var.region
+}
+
 terraform {
   required_version = ">= 1.6.0"
 
@@ -21,5 +25,13 @@ terraform {
       source  = "hashicorp/cloudinit"
       version = "~> 2.3.4"
     }
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    token                  = data.aws_eks_cluster_auth.eks_cluster.token
   }
 }

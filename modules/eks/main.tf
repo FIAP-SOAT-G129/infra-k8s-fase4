@@ -103,3 +103,22 @@ module "eks" {
     }
   )
 }
+
+resource "kubernetes_cluster_role_binding" "github_actions_admin" {
+  metadata {
+    name = "github-actions-cluster-admin"
+  }
+
+  subject {
+    kind      = "User"
+    name      = "arn:aws:iam::009093122732:user/github-user"
+    api_group = "rbac.authorization.k8s.io"
+  }
+
+  role_ref {
+    kind      = "ClusterRole"
+    name      = "cluster-admin"
+    api_group = "rbac.authorization.k8s.io"
+  }
+
+}

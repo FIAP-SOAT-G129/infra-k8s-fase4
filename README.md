@@ -19,7 +19,7 @@ infra-k8s-fase4/
 │── datasource.tf          # Data source para estados remotos
 │── backend.tf             # Configuração do backend remoto S3
 │── modules/               # Módulos reutilizáveis
-│   ├── ecr/               # Módulo de ECR
+│   ├── eks/               # Módulo de EKS
 │   ├── security-group/    # Módulo de Security Group
 ```
 
@@ -29,7 +29,7 @@ infra-k8s-fase4/
 
 - [Terraform >= 1.5](https://developer.hashicorp.com/terraform/downloads)
 - AWS CLI configurado
-- VPC e subnets privadas já provisionadas [infra-foundation-fase4](https://github.com/FIAP-SOAT-G129/infra-foundation-fase4)
+- VPC e subnets privadas já provisionadas [infra-k8s-fase4](https://github.com/FIAP-SOAT-G129/infra-k8s-fase4)
 - Permissões suficientes para criar EKS e Load Balancer
 
 ---

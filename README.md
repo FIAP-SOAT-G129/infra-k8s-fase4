@@ -19,7 +19,7 @@ infra-k8s-fase4/
 │── datasource.tf          # Data source para estados remotos
 │── backend.tf             # Configuração do backend remoto S3
 │── modules/               # Módulos reutilizáveis
-│   ├── ecr/               # Módulo de ECR
+│   ├── eks/               # Módulo de eks
 │   ├── security-group/    # Módulo de Security Group
 ```
 

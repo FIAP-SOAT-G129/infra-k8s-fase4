@@ -1,8 +1,8 @@
 module "security_group" {
-  source         = "./modules/security-group"
-  name           = var.name
-  vpc_id         = data.terraform_remote_state.foundation.outputs.vpc_id
-  tags           = var.tags
+  source = "./modules/security-group"
+  name   = var.name
+  vpc_id = data.terraform_remote_state.foundation.outputs.vpc_id
+  tags   = var.tags
 }
 
 module "eks" {

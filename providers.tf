@@ -11,6 +11,16 @@ terraform {
       version = "~> 5.49"
     }
 
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.29"
+    }
+
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.13"
+    }
+
     random = {
       source  = "hashicorp/random"
       version = "~> 3.6.1"
@@ -27,6 +37,13 @@ terraform {
     }
   }
 }
+
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  token                  = data.aws_eks_cluster_auth.eks_cluster.token
+}
+
 
 provider "helm" {
   kubernetes {

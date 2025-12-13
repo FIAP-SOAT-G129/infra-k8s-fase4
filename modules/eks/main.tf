@@ -104,7 +104,7 @@ module "eks" {
   )
 }
 
-resource "kubernetes_cluster_role_binding" "github_actions_admin" {
+resource "kubernetes_cluster_role_binding_v1" "github_actions_admin" {
   metadata {
     name = "github-actions-cluster-admin"
   }
@@ -120,5 +120,4 @@ resource "kubernetes_cluster_role_binding" "github_actions_admin" {
     name      = "cluster-admin"
     api_group = "rbac.authorization.k8s.io"
   }
-
 }

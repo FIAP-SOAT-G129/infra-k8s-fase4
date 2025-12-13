@@ -16,7 +16,7 @@ variable "subnet_ids" {
 variable "ami_type" {
   type        = string
   description = "EKS managed node group AMI type"
-  default     = "AL2023_x86_64_STANDARD"
+  default     = "AL2_x86_64"
 }
 
 variable "instance_types" {

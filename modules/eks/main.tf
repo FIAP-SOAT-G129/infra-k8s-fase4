@@ -1,31 +1,27 @@
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.34.0"
+  version = "20.8.5"
 
-  cluster_name                   = local.cluster_name
-  cluster_endpoint_public_access = true
-  authentication_mode            = "API"
+  cluster_name    = local.cluster_name
+  cluster_version = "1.29"
 
-  access_entries = {
-    terraform_admin = {
-      principal_arn = "arn:aws:iam::009093122732:user/github-user"
-      access_policies = [
-        "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-      ]
-    }
-  }
+  cluster_endpoint_public_access           = true
+  enable_cluster_creator_admin_permissions = true
+
+  authentication_mode = "API_AND_CONFIG_MAP"
+
+  enable_irsa = true
+  vpc_id      = var.vpc_id
+  subnet_ids  = var.subnet_ids
 
   create_kms_key            = false
   cluster_encryption_config = []
 
   cluster_addons = {
-    coredns    = { most_recent = true }
-    kube-proxy = { most_recent = true }
-    vpc-cni    = { most_recent = true }
+    aws-ebs-csi-driver = {
+      service_account_role_arn = module.irsa-ebs-csi.iam_role_arn
+    }
   }
-
-  vpc_id     = var.vpc_id
-  subnet_ids = var.subnet_ids
 
   eks_managed_node_group_defaults = {
     ami_type       = var.ami_type
@@ -104,20 +100,13 @@ module "eks" {
   )
 }
 
-resource "kubernetes_cluster_role_binding_v1" "github_actions_admin" {
-  metadata {
-    name = "github-actions-cluster-admin"
-  }
+module "irsa-ebs-csi" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  version = "5.39.0"
 
-  subject {
-    kind      = "User"
-    name      = "arn:aws:iam::009093122732:user/github-user"
-    api_group = "rbac.authorization.k8s.io"
-  }
-
-  role_ref {
-    kind      = "ClusterRole"
-    name      = "cluster-admin"
-    api_group = "rbac.authorization.k8s.io"
-  }
+  create_role                   = true
+  role_name                     = "AmazonEKSTFEBSCSIRole-${module.eks.cluster_name}"
+  provider_url                  = module.eks.oidc_provider
+  role_policy_arns              = [data.aws_iam_policy.ebs_csi_policy.arn]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
 }

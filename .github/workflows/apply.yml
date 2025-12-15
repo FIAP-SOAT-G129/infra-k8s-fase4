@@ -19,7 +19,8 @@ jobs:
   apply:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -53,16 +54,17 @@ jobs:
 
       - name: Install / Upgrade AWS Load Balancer Controller
         run: |
+          kubectl create namespace kube-system --dry-run=client -o yaml | kubectl apply -f -
           helm repo add eks https://aws.github.io/eks-charts
           helm repo update
-
           helm upgrade --install alb-controller eks/aws-load-balancer-controller \
             --namespace kube-system \
             --set clusterName=fastfood-cluster \
             --set serviceAccount.create=false \
             --set serviceAccount.name=alb-ingress-service-account
 
-      - name: Apply Kubernetes Manifests
-        run: |
-          kubectl apply -f k8s/namespaces.yaml
-          kubectl apply -f k8s/ingress.yaml
+      - name: Apply Kubernetes Namespaces
+        run: kubectl apply -f k8s/namespaces.yaml
+
+      - name: Apply Kubernetes Ingress
+        run: kubectl apply -f k8s/ingress.yaml

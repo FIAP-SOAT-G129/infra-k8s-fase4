@@ -28,27 +28,22 @@ variable "instance_types" {
 variable "desired_size" {
   type        = number
   description = "Desired number of nodes"
-  default     = 1
+  default     = 3
 }
 
 variable "min_size" {
   type        = number
   description = "Minimum number of nodes"
-  default     = 1
+  default     = 2
 }
 
 variable "max_size" {
   type        = number
   description = "Maximum number of nodes"
-  default     = 2
+  default     = 5
 }
 
 variable "tags" {
   type    = map(string)
   default = {}
-}
-
-variable "security_group_ids" {
-  type        = list(string)
-  description = "List of security group IDs to associate with the RDS instance"
 }

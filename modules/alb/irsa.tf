@@ -1,5 +1,5 @@
 resource "aws_iam_role" "alb_controller" {
-  name = "fastfood-alb-controller-role"
+  name = "${var.cluster_name}-alb-controller"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -11,13 +11,13 @@ resource "aws_iam_role" "alb_controller" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${replace(var.oidc_provider, "https://", "")}:sub" = "system:serviceaccount:kube-system:alb-ingress-service-account"
+          "${replace(var.oidc_provider, "https://", "")}:sub" =
+          "system:serviceaccount:kube-system:aws-load-balancer-controller"
         }
       }
     }]
   })
 }
-
 
 resource "aws_iam_role_policy_attachment" "alb_attach" {
   role       = aws_iam_role.alb_controller.name

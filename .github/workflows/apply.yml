@@ -53,19 +53,23 @@ jobs:
             --region ${{ inputs.aws_region }} \
             --name fastfood-cluster
 
-      - name: Create ALB ServiceAccount (IRSA)
+      - name: Create ALB ServiceAccount
         run: |
+          set -e
+
           ALB_ROLE_ARN=$(terraform output -raw alb_controller_role_arn)
 
-          kubectl apply -f - <<EOF
-          apiVersion: v1
-          kind: ServiceAccount
-          metadata:
-            name: aws-load-balancer-controller
-            namespace: kube-system
-            annotations:
-              eks.amazonaws.com/role-arn: ${ALB_ROLE_ARN}
-          EOF
+          echo "ALB Role ARN: $ALB_ROLE_ARN"
+
+          kubectl create serviceaccount aws-load-balancer-controller \
+            -n kube-system \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl annotate serviceaccount aws-load-balancer-controller \
+            -n kube-system \
+            eks.amazonaws.com/role-arn=$ALB_ROLE_ARN \
+            --overwrite
+
 
       - name: Install / Upgrade AWS Load Balancer Controller
         run: |

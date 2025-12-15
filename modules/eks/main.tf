@@ -13,8 +13,8 @@ module "eks" {
   vpc_id     = var.vpc_id
   subnet_ids = var.subnet_ids
 
-  enable_irsa = true
-  create_kms_key = false
+  enable_irsa               = true
+  create_kms_key            = false
   cluster_encryption_config = []
 
   cluster_addons = {
@@ -57,7 +57,7 @@ module "irsa_ebs_csi" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
   version = "5.39.0"
 
-  create_role  = true
+  create_role = true
   role_name   = "AmazonEKS-EBS-CSI-${local.cluster_name}"
 
   provider_url = module.eks.oidc_provider

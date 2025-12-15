@@ -9,23 +9,22 @@ resource "helm_release" "alb_controller" {
     kubernetes_service_account.alb
   ]
 
-  set {
+set = [
+  {
     name  = "clusterName"
-    value = var.cluster_name
-  }
-
-  set {
+    value = var.name
+  },
+  {
     name  = "vpcId"
     value = var.vpc_id
-  }
-
-  set {
+  },
+  {
     name  = "serviceAccount.create"
     value = "false"
-  }
-
-  set {
+  },
+  {
     name  = "serviceAccount.name"
     value = kubernetes_service_account.alb.metadata[0].name
   }
+]
 }

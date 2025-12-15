@@ -11,7 +11,8 @@ resource "aws_iam_role" "alb_controller" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${replace(var.oidc_provider, "https://", "")}:sub" = "system:serviceaccount:kube-system:aws-load-balancer-controller"
+          "${replace(var.oidc_provider, "https://", "")}:sub" =
+          "system:serviceaccount:kube-system:alb-ingress-service-account"
         }
       }
     }]

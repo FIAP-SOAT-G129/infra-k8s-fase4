@@ -12,7 +12,7 @@ resource "helm_release" "alb_controller" {
   set = [
     {
       name  = "clusterName"
-      value = var.name
+      value = var.cluster_name
     },
     {
       name  = "vpcId"

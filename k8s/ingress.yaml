@@ -14,26 +14,76 @@ spec:
   rules:
     - http:
         paths:
-          - path: /catalog
+
+          # =====================
+          # CATALOG MS
+          # =====================
+          - path: /v1/categories
             pathType: Prefix
             backend:
               service:
-                name: catalog-service
+                name: fastfood-catalog-ms
                 port:
                   number: 8080
 
-          - path: /orders
+          - path: /v1/customers
             pathType: Prefix
             backend:
               service:
-                name: orders-service
+                name: fastfood-catalog-ms
                 port:
                   number: 8080
 
-          - path: /payments
+          - path: /v1/employees
             pathType: Prefix
             backend:
               service:
-                name: payments-service
+                name: fastfood-catalog-ms
+                port:
+                  number: 8080
+
+          - path: /v1/products
+            pathType: Prefix
+            backend:
+              service:
+                name: fastfood-catalog-ms
+                port:
+                  number: 8080
+
+          # =====================
+          # ORDERS MS
+          # =====================
+          - path: /v1/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: fastfood-orders-ms
+                port:
+                  number: 8080
+
+          - path: /v1/combos
+            pathType: Prefix
+            backend:
+              service:
+                name: fastfood-orders-ms
+                port:
+                  number: 8080
+
+          # =====================
+          # PAYMENTS MS
+          # =====================
+          - path: /v1/payments
+            pathType: Prefix
+            backend:
+              service:
+                name: fastfood-payments-ms
+                port:
+                  number: 8080
+
+          - path: /v1/webhooks
+            pathType: Prefix
+            backend:
+              service:
+                name: fastfood-payments-ms
                 port:
                   number: 8080

@@ -22,7 +22,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: fastfood-catalog-ms
+                name: fastfood-catalog-ms-svc
                 port:
                   number: 8080
 
@@ -30,7 +30,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: fastfood-catalog-ms
+                name: fastfood-catalog-ms-svc
                 port:
                   number: 8080
 
@@ -38,7 +38,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: fastfood-catalog-ms
+                name: fastfood-catalog-ms-svc
                 port:
                   number: 8080
 
@@ -46,7 +46,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: fastfood-catalog-ms
+                name: fastfood-catalog-ms-svc
                 port:
                   number: 8080
 
@@ -57,7 +57,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: fastfood-orders-ms
+                name: fastfood-orders-ms-svc
                 port:
                   number: 8080
 
@@ -65,7 +65,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: fastfood-orders-ms
+                name: fastfood-orders-ms-svc
                 port:
                   number: 8080
 
@@ -76,7 +76,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: fastfood-payments-ms
+                name: fastfood-payments-ms-svc
                 port:
                   number: 8080
 
@@ -84,6 +84,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: fastfood-payments-ms
+                name: fastfood-payments-ms-svc
                 port:
                   number: 8080

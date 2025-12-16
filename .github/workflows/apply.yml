@@ -66,9 +66,9 @@ jobs:
             -n kube-system \
             --dry-run=client -o yaml | kubectl apply -f -
 
-          kubectl annotate serviceaccount aws-load-balancer-controller \
+          kubectl annotate sa aws-load-balancer-controller \
             -n kube-system \
-            eks.amazonaws.com/role-arn="${ALB_ROLE_ARN}" \
+            eks.amazonaws.com/role-arn=arn:aws:iam::009093122732:role/fastfood-cluster-alb-controller \
             --overwrite
 
 

@@ -12,7 +12,7 @@ module "eks" {
 
   access_entries = {
     terraform_admin = {
-      principal_arn = "arn:aws:iam::009093122732:user/thiago_dias"
+      principal_arn = "arn:aws:iam::009093122732:user/github-user"
 
       policy_associations = {
         admin = {

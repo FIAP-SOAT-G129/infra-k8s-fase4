@@ -10,21 +10,6 @@ module "eks" {
 
   authentication_mode = "API_AND_CONFIG_MAP"
 
-  access_entries = {
-    terraform_admin = {
-      principal_arn = "arn:aws:iam::009093122732:user/thiago_dias"
-
-      policy_associations = {
-        admin = {
-          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-          access_scope = {
-            type = "cluster"
-          }
-        }
-      }
-    }
-  }
-
   vpc_id     = var.vpc_id
   subnet_ids = var.subnet_ids
 

@@ -1,46 +1,93 @@
-name: Terraform Apply
+name: Terraform Apply Pipeline
+
+concurrency:
+  group: terraform-apply-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
-  workflow_call:
-    inputs:
-      tf_version:
-        required: true
-        type: string
-      aws_region:
-        required: true
-        type: string
-    secrets:
-      AWS_ACCESS_KEY_ID:
-        required: true
-      AWS_SECRET_ACCESS_KEY:
-        required: true
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
-  apply:
-    runs-on: ubuntu-latest
+  fmt-validate:
+    uses: ./.github/workflows/fmt-validate.yml
+    with:
+      tf_version: ${{ vars.TF_VERSION }}
 
+  plan:
+    needs: fmt-validate
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws_region }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: ${{ inputs.tf_version }}
+          terraform_version: ${{ vars.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan \
+            -input=false \
+            -out=tfplan
+
+      - name: Upload Terraform Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: tfplan
+
+  apply:
+    needs: plan
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ vars.TF_VERSION }}
+
+      - name: Download Terraform Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+
+      - name: Terraform Init
+        run: terraform init -input=false
 
       - name: Terraform Apply
-        run: terraform apply -input=false -auto-approve
+        run: |
+          terraform apply \
+            -input=false \
+            -auto-approve \
+            tfplan
 
+  kubeconfig:
+    needs: apply
+    runs-on: ubuntu-latest
+    steps:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v4
 
@@ -50,7 +97,7 @@ jobs:
       - name: Update kubeconfig
         run: |
           aws eks update-kubeconfig \
-            --region ${{ inputs.aws_region }} \
+            --region ${{ vars.AWS_REGION }} \
             --name fastfood-cluster
 
       - name: Create / Annotate ALB ServiceAccount
@@ -71,8 +118,6 @@ jobs:
             eks.amazonaws.com/role-arn=arn:aws:iam::009093122732:role/fastfood-cluster-alb-controller \
             --overwrite
 
-
-
       - name: Install / Upgrade AWS Load Balancer Controller
         run: |
           helm repo add eks https://aws.github.io/eks-charts
@@ -82,7 +127,7 @@ jobs:
             --namespace kube-system \
             --create-namespace \
             --set clusterName=fastfood-cluster \
-            --set region=${{ inputs.aws_region }} \
+            --set region=${{ vars.AWS_REGION }} \
             --set vpcId=${{ vars.VPC_ID }} \
             --set serviceAccount.create=false \
             --set serviceAccount.name=aws-load-balancer-controller
@@ -98,22 +143,22 @@ jobs:
         shell: bash
         run: |
           echo "Waiting for ALB DNS..."
-          
+
           for i in {1..20}; do
             ALB_DNS=$(kubectl get ingress fastfood-ingress \
               -n fastfood \
               -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-          
+
             if [[ -n "$ALB_DNS" ]]; then
               echo "ALB DNS found: $ALB_DNS"
               echo "alb_dns=$ALB_DNS" >> $GITHUB_OUTPUT
               exit 0
             fi
-          
+
             echo "ALB not ready yet... retrying ($i/20)"
             sleep 15
           done
-          
+
           echo "ERROR: ALB DNS not available after timeout"
           exit 1
 
@@ -124,4 +169,3 @@ jobs:
             --value "${{ steps.alb_dns.outputs.alb_dns }}" \
             --type String \
             --overwrite
-

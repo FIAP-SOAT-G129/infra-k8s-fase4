@@ -54,6 +54,8 @@ jobs:
     needs: plan
     if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    outputs:
+      alb_role_arn: ${{ steps.tf_outputs.outputs.alb_role_arn }}
     steps:
       - uses: actions/checkout@v4
 
@@ -84,6 +86,11 @@ jobs:
             -auto-approve \
             tfplan
 
+      - name: Export Terraform Outputs
+        id: tf_outputs
+        run: |
+          echo "alb_role_arn=$(terraform output -raw alb_controller_role_arn)" >> $GITHUB_OUTPUT
+
   kubeconfig:
     needs: apply
     runs-on: ubuntu-latest
@@ -112,19 +119,13 @@ jobs:
       - name: Create / Annotate ALB ServiceAccount
         shell: bash
         run: |
-          set -e
-
-          ALB_ROLE_ARN="$(terraform output -raw alb_controller_role_arn)"
-
-          echo "ALB Role ARN: ${ALB_ROLE_ARN}"
-
           kubectl create serviceaccount aws-load-balancer-controller \
             -n kube-system \
             --dry-run=client -o yaml | kubectl apply -f -
 
           kubectl annotate sa aws-load-balancer-controller \
             -n kube-system \
-            eks.amazonaws.com/role-arn=arn:aws:iam::009093122732:role/fastfood-cluster-alb-controller \
+            eks.amazonaws.com/role-arn=${{ needs.apply.outputs.alb_role_arn }} \
             --overwrite
 
       - name: Install / Upgrade AWS Load Balancer Controller

@@ -105,3 +105,12 @@ jobs:
           
           echo "ALB DNS: $ALB_DNS"
           echo "alb_dns=$ALB_DNS" >> $GITHUB_OUTPUT
+
+      - name: Save ALB DNS in SSM
+        run: |
+          aws ssm put-parameter \
+            --name "/fastfood/alb/dns" \
+            --value "${{ steps.alb_dns.outputs.alb_dns_name }}" \
+            --type String \
+            --overwrite
+

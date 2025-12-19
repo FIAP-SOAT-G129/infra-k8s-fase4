@@ -88,13 +88,18 @@ jobs:
 
       - name: Export Terraform Outputs
         id: tf_outputs
+        shell: bash
         run: |
-          echo "alb_role_arn=$(terraform output -raw alb_controller_role_arn)" >> $GITHUB_OUTPUT
+          ALB_ROLE_ARN=$(terraform output -json | jq -r '.alb_controller_role_arn.value')
+          echo "alb_role_arn=${ALB_ROLE_ARN}" >> "$GITHUB_OUTPUT"
 
   kubeconfig:
     needs: apply
     runs-on: ubuntu-latest
     steps:
+      - name: Debug output
+        run: echo "ALB ARN => '${{ steps.tf_outputs.outputs.alb_role_arn }}'"
+
       - uses: actions/checkout@v4
 
       - name: Configure AWS credentials

@@ -94,10 +94,6 @@ jobs:
           ALB_ROLE_ARN="$(terraform output -raw alb_controller_role_arn | tr -d '\n' | tr -d '\r')"
           echo "alb_role_arn=${ALB_ROLE_ARN}" >> "$GITHUB_OUTPUT"
 
-      - name: Debug Outputs
-        run: |
-          echo "ALB Role ARN: ${{ steps.tf_outputs.outputs.alb_role_arn }}"
-
   kubeconfig:
     needs: apply
     runs-on: ubuntu-latest

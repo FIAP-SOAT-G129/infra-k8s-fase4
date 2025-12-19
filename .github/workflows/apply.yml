@@ -92,3 +92,16 @@ jobs:
 
       - name: Apply Kubernetes Ingress
         run: kubectl apply -f k8s/ingress.yaml
+
+      - name: Get ALB DNS from Ingress
+        id: alb_dns
+        run: |
+          echo "Waiting for ALB ..."
+          sleep 60
+          
+          ALB_DNS=$(kubectl get ingress fastfood-ingress \
+            -n fastfood \
+            -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          
+          echo "ALB DNS: $ALB_DNS"
+          echo "alb_dns=$ALB_DNS" >> $GITHUB_OUTPUT

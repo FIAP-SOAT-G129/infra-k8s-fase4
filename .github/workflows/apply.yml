@@ -94,7 +94,20 @@ jobs:
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name $CLUSTER_NAME --region ${{ vars.AWS_REGION }}
 
-      - name: Install AWS Load Balancer Controller
+      - name: Create / Annotate ALB ServiceAccount
+        shell: bash
+        run: |
+          set -e
+          kubectl create serviceaccount aws-load-balancer-controller \
+            -n kube-system \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl annotate sa aws-load-balancer-controller \
+            -n kube-system \
+            eks.amazonaws.com/role-arn=$ALB_ROLE_ARN \
+            --overwrite
+
+      - name: Install / Upgrade AWS Load Balancer Controller
         run: |
           helm repo add eks https://aws.github.io/eks-charts
           helm repo update
@@ -105,8 +118,7 @@ jobs:
             --set clusterName="$CLUSTER_NAME" \
             --set region=${{ vars.AWS_REGION }} \
             --set vpcId="$VPC_ID" \
-            --set serviceAccount.create=true \
-            --set-json serviceAccount.annotations='{"eks.amazonaws.com/role-arn":"'"$ALB_ROLE_ARN"'"}' \
+            --set serviceAccount.create=false \
             --set serviceAccount.name=aws-load-balancer-controller
 
       - name: Deploy FastFood Ingress
@@ -122,7 +134,7 @@ jobs:
           echo "Waiting for ALB DNS..."
 
           for i in {1..20}; do
-            ALB_DNS=$(kubectl get ingress fastfood-ingress \
+            ALB_DNS=$(kubectl get ingress fastfood-infra-ingress \
               -n fastfood \
               -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 

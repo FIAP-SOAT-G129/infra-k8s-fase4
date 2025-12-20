@@ -1,0 +1,18 @@
+{{- if .Release.IsInstall }}
+Thank you for installing {{ .Chart.Name }}!
+
+To get started, check the status of your release:
+    helm status {{ .Release.Name }}
+
+{{- end }}
+
+{{- if .Release.IsUpgrade }}
+{{ .Chart.Name }} has been upgraded!
+
+Check the status:
+    helm status {{ .Release.Name }}
+{{- end }}
+
+{{- if .Release.IsUninstall }}
+{{ .Chart.Name }} has been uninstalled.
+{{- end }}

@@ -39,3 +39,9 @@ terraform.rc
 # Ignore the file that holds provider-specific lock information, which is
 # created automatically when running "terraform init".
 .terraform.lock.hcl
+
+# Local configuration files that may contain sensitive data
+*.local
+*.local.*
+!*.sample
+!*.sample.*

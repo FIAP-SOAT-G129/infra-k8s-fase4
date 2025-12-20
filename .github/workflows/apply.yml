@@ -92,10 +92,10 @@ jobs:
         shell: bash
         run: |
           set -e
-          ALB_ROLE_ARN="$(terraform output -raw alb_controller_role_arn | tr -d '\n' | tr -d '\r')"
+          ALB_ROLE_ARN="$(terraform output -raw alb_controller_role_arn)"
           echo "alb_role_arn=${ALB_ROLE_ARN}" >> "$GITHUB_OUTPUT"
 
-          CLUSTER_NAME="$(terraform output -raw cluster_name | tr -d '\n' | tr -d '\r')"
+          CLUSTER_NAME="$(terraform output -raw cluster_name)"
           echo "cluster_name=${CLUSTER_NAME}" >> "$GITHUB_OUTPUT"
 
   kubeconfig:

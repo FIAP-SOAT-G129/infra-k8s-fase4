@@ -111,14 +111,10 @@ jobs:
         run: aws eks update-kubeconfig --name ${{ needs.apply.outputs.cluster_name }} --region ${{ vars.AWS_REGION }}
 
       - name: Deploy AWS Load Balancer Controller Helm Chart
-        env:
-          NAMESPACE: fastfood
         run: |
           helm upgrade --install fastfood-k8s ./helm \
-            --namespace $NAMESPACE \
+            --namespace fastfood \
             --create-namespace \
-            --set namespace="$NAMESPACE" \
-            --set alb.serviceAccount.roleArn=${{ needs.apply.outputs.alb_role_arn }} \
 
       - name: Install / Upgrade AWS Load Balancer Controller
         run: |
@@ -131,7 +127,8 @@ jobs:
             --set clusterName=${{ needs.apply.outputs.cluster_name }} \
             --set region=${{ vars.AWS_REGION }} \
             --set vpcId=${{ vars.VPC_ID }} \
-            --set serviceAccount.create=false \
+            --set serviceAccount.create=true \
+            --set serviceAccount.annotations.eks\.amazonaws\.com/role-arn=${{ needs.apply.outputs.alb_role_arn }} \
             --set serviceAccount.name=aws-load-balancer-controller
 
       - name: Get ALB DNS from Ingress

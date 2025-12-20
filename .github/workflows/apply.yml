@@ -93,9 +93,11 @@ jobs:
         run: |
           set -e
           ALB_ROLE_ARN="$(terraform output -raw alb_controller_role_arn)"
+          echo "ALB Role ARN: $ALB_ROLE_ARN"
           echo "alb_role_arn=${ALB_ROLE_ARN}" >> "$GITHUB_OUTPUT"
 
           CLUSTER_NAME="$(terraform output -raw cluster_name)"
+          echo "Cluster Name: $CLUSTER_NAME"
           echo "cluster_name=${CLUSTER_NAME}" >> "$GITHUB_OUTPUT"
 
   kubeconfig:
@@ -110,10 +112,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Debug cluster name
-        run: |
-          echo "Cluster name is: '${{ needs.apply.outputs.cluster_name }}'"
 
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name ${{ needs.apply.outputs.cluster_name }} --region ${{ vars.AWS_REGION }}

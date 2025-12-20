@@ -90,16 +90,16 @@ jobs:
       - name: Export Terraform Outputs
         id: tf_outputs
         shell: bash
-        env:
-          TF_LOG: ERROR
         run: |
           set -e
 
-          ALB_ROLE_ARN="$(terraform output -raw alb_controller_role_arn)"
-          CLUSTER_NAME="$(terraform output -raw cluster_name)"
+          TF_OUTPUT_JSON="$(terraform output -json)"
 
-          echo "alb_role_arn=${ALB_ROLE_ARN}" >> "$GITHUB_OUTPUT"
+          CLUSTER_NAME="$(echo "$TF_OUTPUT_JSON" | jq -r '.cluster_name.value')"
+          ALB_ROLE_ARN="$(echo "$TF_OUTPUT_JSON" | jq -r '.alb_controller_role_arn.value')"
+
           echo "cluster_name=${CLUSTER_NAME}" >> "$GITHUB_OUTPUT"
+          echo "alb_role_arn=${ALB_ROLE_ARN}" >> "$GITHUB_OUTPUT"
 
   kubeconfig:
     needs: apply

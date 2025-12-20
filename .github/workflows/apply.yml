@@ -30,7 +30,7 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ vars.TF_VERSION }}
 
@@ -68,9 +68,10 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ vars.TF_VERSION }}
+          terraform_wrapper: false
 
       - name: Download Terraform Plan Artifact
         uses: actions/download-artifact@v4
@@ -89,17 +90,9 @@ jobs:
 
       - name: Export Terraform Outputs
         id: tf_outputs
-        shell: bash
         run: |
-          set -e
-
-          TF_OUTPUT_JSON="$(terraform output -json)"
-
-          CLUSTER_NAME="$(echo "$TF_OUTPUT_JSON" | jq -r '.cluster_name.value')"
-          ALB_ROLE_ARN="$(echo "$TF_OUTPUT_JSON" | jq -r '.alb_controller_role_arn.value')"
-
-          echo "cluster_name=${CLUSTER_NAME}" >> "$GITHUB_OUTPUT"
-          echo "alb_role_arn=${ALB_ROLE_ARN}" >> "$GITHUB_OUTPUT"
+          echo "cluster_name=$(terraform output -raw cluster_name)" >> "$GITHUB_OUTPUT"
+          echo "alb_role_arn=$(terraform output -raw alb_controller_role_arn)" >> "$GITHUB_OUTPUT"
 
   kubeconfig:
     needs: apply

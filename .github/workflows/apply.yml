@@ -102,11 +102,11 @@ jobs:
           helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
             --namespace kube-system \
             --create-namespace \
-            --set clusterName=$CLUSTER_NAME \
+            --set clusterName="$CLUSTER_NAME" \
             --set region=${{ vars.AWS_REGION }} \
-            --set vpcId=$VPC_ID \
+            --set vpcId="$VPC_ID" \
             --set serviceAccount.create=true \
-            --set serviceAccount.annotations.eks\.amazonaws\.com/role-arn=$ALB_ROLE_ARN \
+            --set serviceAccount.annotations.eks\.amazonaws\.com/role-arn="$ALB_ROLE_ARN" \
             --set serviceAccount.name=aws-load-balancer-controller
 
       - name: Deploy FastFood Ingress

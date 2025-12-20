@@ -111,21 +111,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
+      - name: Debug cluster name
+        run: |
+          echo "Cluster name is: '${{ needs.apply.outputs.cluster_name }}'"
+
       - name: Update kubeconfig
-        env:
-          CLUSTER_NAME: ${{ needs.apply.outputs.cluster_name }}
-        run: aws eks update-kubeconfig --name $CLUSTER_NAME --region ${{ vars.AWS_REGION }}
+        run: aws eks update-kubeconfig --name ${{ needs.apply.outputs.cluster_name }} --region ${{ vars.AWS_REGION }}
 
       - name: Deploy AWS Load Balancer Controller Helm Chart
         env:
           NAMESPACE: fastfood
-          SA_ROLE_ARN: ${{ needs.apply.outputs.alb_role_arn }}
         run: |
-          helm upgrade --install aws-load-balancer-controller ./helm \
+          helm upgrade --install fastfood-k8s ./helm \
             --namespace $NAMESPACE \
             --create-namespace \
             --set namespace="$NAMESPACE" \
-            --set alb.serviceAccount.roleArn="$SA_ROLE_ARN" \
+            --set alb.serviceAccount.roleArn=${{ needs.apply.outputs.alb_role_arn }} \
 
       - name: Install / Upgrade AWS Load Balancer Controller
         run: |
@@ -135,7 +136,7 @@ jobs:
           helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
             --namespace kube-system \
             --create-namespace \
-            --set clusterName=fastfood-cluster \
+            --set clusterName=${{ needs.apply.outputs.cluster_name }} \
             --set region=${{ vars.AWS_REGION }} \
             --set vpcId=${{ vars.VPC_ID }} \
             --set serviceAccount.create=false \

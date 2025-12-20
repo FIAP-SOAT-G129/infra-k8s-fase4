@@ -56,6 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       alb_role_arn: ${{ steps.tf_outputs.outputs.alb_role_arn }}
+      cluster_name: ${{ steps.tf_outputs.outputs.cluster_name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -94,6 +95,9 @@ jobs:
           ALB_ROLE_ARN="$(terraform output -raw alb_controller_role_arn | tr -d '\n' | tr -d '\r')"
           echo "alb_role_arn=${ALB_ROLE_ARN}" >> "$GITHUB_OUTPUT"
 
+          CLUSTER_NAME="$(terraform output -raw cluster_name | tr -d '\n' | tr -d '\r')"
+          echo "cluster_name=${CLUSTER_NAME}" >> "$GITHUB_OUTPUT"
+
   kubeconfig:
     needs: apply
     runs-on: ubuntu-latest
@@ -107,29 +111,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Setup Helm
-        uses: azure/setup-helm@v4
-
       - name: Update kubeconfig
-        run: |
-          aws eks update-kubeconfig \
-            --region ${{ vars.AWS_REGION }} \
-            --name fastfood-cluster
+        env:
+          CLUSTER_NAME: ${{ needs.apply.outputs.cluster_name }}
+        run: aws eks update-kubeconfig --name $CLUSTER_NAME --region ${{ vars.AWS_REGION }}
 
-      - name: Create / Annotate ALB ServiceAccount
-        shell: bash
+      - name: Deploy AWS Load Balancer Controller Helm Chart
+        env:
+          NAMESPACE: fastfood
+          SA_ROLE_ARN: ${{ needs.apply.outputs.alb_role_arn }}
         run: |
-          kubectl create serviceaccount aws-load-balancer-controller \
-            -n kube-system \
-            --dry-run=client -o yaml | kubectl apply -f -
-
-          kubectl annotate sa aws-load-balancer-controller \
-            -n kube-system \
-            eks.amazonaws.com/role-arn=${{ needs.apply.outputs.alb_role_arn }} \
-            --overwrite
+          helm upgrade --install aws-load-balancer-controller ./helm \
+            --namespace $NAMESPACE \
+            --create-namespace \
+            --set namespace="$NAMESPACE" \
+            --set alb.serviceAccount.roleArn="$SA_ROLE_ARN" \
 
       - name: Install / Upgrade AWS Load Balancer Controller
         run: |
@@ -144,12 +140,6 @@ jobs:
             --set vpcId=${{ vars.VPC_ID }} \
             --set serviceAccount.create=false \
             --set serviceAccount.name=aws-load-balancer-controller
-
-      - name: Apply Kubernetes Namespace
-        run: kubectl apply -f k8s/namespaces.yaml
-
-      - name: Apply Kubernetes Ingress
-        run: kubectl apply -f k8s/ingress.yaml
 
       - name: Get ALB DNS from Ingress
         id: alb_dns

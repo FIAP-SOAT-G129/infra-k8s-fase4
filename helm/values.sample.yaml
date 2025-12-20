@@ -1,0 +1,20 @@
+namespace: fastfood
+
+ingress:
+  className: alb
+  routes:
+    - path: /catalog
+      pathType: Prefix
+      service:
+        name: fastfood-catalog-ms-svc
+        port: 8080
+    - path: /orders
+      pathType: Prefix
+      service:
+        name: fastfood-orders-ms-svc
+        port: 8080
+    - path: /payments
+      pathType: Prefix
+      service:
+        name: fastfood-payments-ms-svc
+        port: 8080

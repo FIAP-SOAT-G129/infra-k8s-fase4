@@ -1,0 +1,29 @@
+{{- if .Release.IsInstall }}
+Thank you for installing {{ .Chart.Name }}!
+
+To get started, check the status of your release:
+    helm status {{ .Release.Name }}
+
+{{- if .Values.app.service }}
+Your service is available at:
+    {{- if eq .Values.app.service.type "LoadBalancer" }}
+    Port: {{ .Values.app.service.port }}
+    {{- else if eq .Values.app.service.type "NodePort" }}
+    NodePort: {{ .Values.app.service.nodePort }}
+    {{- else }}
+    ClusterIP: {{ .Values.app.service.clusterIP }}
+    {{- end }}
+{{- end }}
+
+{{- end }}
+
+{{- if .Release.IsUpgrade }}
+{{ .Chart.Name }} has been upgraded!
+
+Check the status:
+    helm status {{ .Release.Name }}
+{{- end }}
+
+{{- if .Release.IsUninstall }}
+{{ .Chart.Name }} has been uninstalled.
+{{- end }}

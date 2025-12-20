@@ -54,6 +54,8 @@ jobs:
     needs: plan
     if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    outputs:
+      alb_role_arn: ${{ steps.tf_outputs.outputs.alb_role_arn }}
     steps:
       - uses: actions/checkout@v4
 

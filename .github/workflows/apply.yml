@@ -54,9 +54,6 @@ jobs:
     needs: plan
     if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    outputs:
-      alb_role_arn: ${{ steps.tf_outputs.outputs.alb_role_arn }}
-      cluster_name: ${{ steps.tf_outputs.outputs.cluster_name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -89,26 +86,13 @@ jobs:
             tfplan
 
       - name: Export Terraform Outputs
-        id: tf_outputs
         run: |
-          echo "cluster_name=$(terraform output -raw cluster_name)" >> "$GITHUB_OUTPUT"
-          echo "alb_role_arn=$(terraform output -raw alb_controller_role_arn)" >> "$GITHUB_OUTPUT"
-
-  kubeconfig:
-    needs: apply
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
+          echo "CLUSTER_NAME=$(terraform output -raw cluster_name)" >> "$GITHUB_ENV"
+          echo "ALB_ROLE_ARN=$(terraform output -raw alb_controller_role_arn)" >> "$GITHUB_ENV"
+          echo "VPC_ID=$(terraform output -raw vpc_id)" >> "$GITHUB_ENV"
 
       - name: Update kubeconfig
-        run: aws eks update-kubeconfig --name ${{ needs.apply.outputs.cluster_name }} --region ${{ vars.AWS_REGION }}
+        run: aws eks update-kubeconfig --name $CLUSTER_NAME --region ${{ vars.AWS_REGION }}
 
       - name: Install AWS Load Balancer Controller
         run: |
@@ -118,11 +102,11 @@ jobs:
           helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
             --namespace kube-system \
             --create-namespace \
-            --set clusterName=${{ needs.apply.outputs.cluster_name }} \
+            --set clusterName=$CLUSTER_NAME \
             --set region=${{ vars.AWS_REGION }} \
-            --set vpcId=${{ vars.VPC_ID }} \
+            --set vpcId=$VPC_ID \
             --set serviceAccount.create=true \
-            --set serviceAccount.annotations.eks\.amazonaws\.com/role-arn=${{ needs.apply.outputs.alb_role_arn }} \
+            --set serviceAccount.annotations.eks\.amazonaws\.com/role-arn=$ALB_ROLE_ARN \
             --set serviceAccount.name=aws-load-balancer-controller
 
       - name: Deploy FastFood Ingress

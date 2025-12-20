@@ -106,7 +106,7 @@ jobs:
             --set region=${{ vars.AWS_REGION }} \
             --set vpcId="$VPC_ID" \
             --set serviceAccount.create=true \
-            --set-string serviceAccount.annotations.eks\.amazonaws\.com/role-arn="$ALB_ROLE_ARN" \
+            --set-json serviceAccount.annotations='{"eks.amazonaws.com/role-arn":"'"$ALB_ROLE_ARN"'"}' \
             --set serviceAccount.name=aws-load-balancer-controller
 
       - name: Deploy FastFood Ingress

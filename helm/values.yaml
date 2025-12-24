@@ -28,21 +28,21 @@ ingress:
       pathType: Prefix
       service:
         name: fastfood-orders-ms-svc
-        port: 8081
+        port: 8080
     - path: /v1/combos
       pathType: Prefix
       service:
         name: fastfood-orders-ms-svc
-        port: 8081
+        port: 8080
 
     # PAYMENTS MS
     - path: /v1/payments
       pathType: Prefix
       service:
         name: fastfood-payments-ms-svc
-        port: 8082
+        port: 8080
     - path: /v1/webhooks
       pathType: Prefix
       service:
         name: fastfood-payments-ms-svc
-        port: 8082
+        port: 8080

@@ -45,8 +45,4 @@ ingress:
       pathType: Prefix
       service:
         name: fastfood-payments-ms-svc
-<<<<<<< Updated upstream
-        port: 8080
-=======
         port: 8082
->>>>>>> Stashed changes

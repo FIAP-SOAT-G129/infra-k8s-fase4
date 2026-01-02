@@ -1,6 +1,6 @@
 ingress:
   className: alb
-  routes:
+  routes:    
     # CATALOG MS
     - path: /v1/categories
       pathType: Prefix

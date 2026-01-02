@@ -1,6 +1,23 @@
 ingress:
   className: alb
   routes:
+    # HEALTH CHECKS
+    - path: /catalog-health
+      pathType: Prefix
+      service:
+        name: fastfood-catalog-ms-svc
+        port: 8080
+    - path: /orders-health
+      pathType: Prefix
+      service:
+        name: fastfood-orders-ms-svc
+        port: 8081
+    - path: /payments-health
+      pathType: Prefix
+      service:
+        name: fastfood-payments-ms-svc
+        port: 8082
+    
     # CATALOG MS
     - path: /v1/categories
       pathType: Prefix

@@ -1,10 +1,14 @@
 # ☸ Infraestrutura Kubernetes na AWS (EKS)
 
-Este repositório contém a infraestrutura do cluster Kubernetes para o projeto Fastfood, provisionada via **Terraform** na AWS. Inclui:
+Este repositório contém a infraestrutura Kubernetes do projeto Fastfood, provisionada na AWS utilizando **Terraform e Helm**.
+A stack é responsável por criar e configurar:
 
 - Amazon EKS (Elastic Kubernetes Service)
-- Security Group dedicados ao EKS
-- Backend remoto em S3
+- Security Groups dedicados ao cluster
+- AWS Load Balancer Controller (ALB) com IRSA
+- Ingress Controller baseado em Application Load Balancer (ALB)
+- Backend remoto do Terraform em S3
+- Estrutura Helm para deploy de aplicações
 
 ---
 
@@ -19,8 +23,16 @@ infra-k8s-fase4/
 │── datasource.tf          # Data source para estados remotos
 │── backend.tf             # Configuração do backend remoto S3
 │── modules/               # Módulos reutilizáveis
+│   ├── alb/               # AWS Load Balancer Controller (IRSA)
 │   ├── eks/               # Módulo de EKS
 │   ├── security-group/    # Módulo de Security Group
+│── helm/                  # Helm Charts
+│   ├── templates/            
+│   ├── .helmignore           
+│   ├── Chart.yaml
+│   ├── Chart.lock
+│   ├── values.yaml
+│   ├── values.sample.yaml
 ```
 
 ---
@@ -30,7 +42,11 @@ infra-k8s-fase4/
 - [Terraform >= 1.5](https://developer.hashicorp.com/terraform/downloads)
 - AWS CLI configurado
 - VPC e subnets privadas já provisionadas [infra-k8s-fase4](https://github.com/FIAP-SOAT-G129/infra-k8s-fase4)
-- Permissões suficientes para criar EKS e Load Balancer
+- Permissões IAM para: 
+  - EKS
+  - EC2
+  - IAM (IRSA)
+  - ALB
 
 ---
 
@@ -76,7 +92,7 @@ A configuração completa está no arquivo `backend.tf`.
 ## 🔒 Segurança
 
 - Security Groups são configurados para permitir o tráfego adequado para o cluster.
-- Roles específicas são atribuídas ao EKS e ao NLB via IAM.
+- Roles específicas são atribuídas ao EKS e ao ALB via IAM.
 
 ## 🏗️ Pipeline de Automação
 

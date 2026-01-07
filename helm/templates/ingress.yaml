@@ -6,7 +6,7 @@ metadata:
     {{- include "app.labels" . | nindent 4 }}
   annotations:
     alb.ingress.kubernetes.io/load-balancer-name: {{ include "app.name" . }}-alb
-    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/scheme: internal
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
     alb.ingress.kubernetes.io/healthcheck-path: /v1/health
